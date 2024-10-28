@@ -1,6 +1,7 @@
 package com.example.prep.controller;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileWriter;
@@ -16,6 +17,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -62,19 +64,26 @@ public class CodeController {
 		String code = (String) requestBody.get("code");
 		try {code = URLDecoder.decode(code, "UTF-8");}
 		catch (UnsupportedEncodingException e) {e.printStackTrace();}
-		System.out.println(code);
-		System.out.println(inputs);
-		System.out.println(language);
 		LinkedHashMap<String, Object> responseMap = new LinkedHashMap<>();
 		ObjectMapper objectMapper = new ObjectMapper();
 	    responseMap.put("status", "OK");
-	    
+	    System.out.println(code);
+	    System.out.println(language);
+	    System.out.println(inputs);
 	    ArrayList<String> outputs = new ArrayList<>();
 	    for(String input : inputs) {
 	    	if(language.equalsIgnoreCase("Java")) {
 		    	String output = run(code, input);
 		    	outputs.add(output);
 		    }
+	    	else if(language.equalsIgnoreCase("cpp")) {
+	    		String output = run_cpp(code, input).toString();
+	    		outputs.add(output);
+	    	}
+	    	else {
+	    		String output = runpy(code, input).toString();
+	    		outputs.add(output);
+	    	}
 	    }
 	    responseMap.put("results", outputs);
 	    try {
@@ -203,5 +212,197 @@ public class CodeController {
             return "Time Limit Exceeded";
         }
 	}
+	
+	public String injectFileRedirect(String cppCode, String filename) {
+        int mainIndex = cppCode.indexOf("main(");
+        if (mainIndex == -1) {
+        	mainIndex = cppCode.indexOf("(", cppCode.indexOf("main"));
+        }
+        int mainEndIndex = cppCode.indexOf("{", mainIndex);
+        if (mainEndIndex == -1) {
+            return cppCode;
+        }
+        StringBuilder modifiedCode = new StringBuilder(cppCode);
+        modifiedCode.insert(mainEndIndex + 1, "freopen(\"" + filename + "\", \"r\", stdin);");
+        return modifiedCode.toString();
+    }
+	
+	public StringBuilder run_cpp(String f_code, String input) {
+		Random rand = new Random();
+		int num = rand.nextInt(1000);
+		String fname = "main" + num + ".cpp";
+    	File sourceFile = new File(fname);
+    	f_code = "#include <cstdio> \n" + f_code;
+    	f_code = injectFileRedirect(f_code, "pooja" + num + ".txt");
+    	//System.out.println(f_code);
+    	StringBuilder output = new StringBuilder();
+        FileWriter writer;
+        try {
+            writer = new FileWriter(sourceFile);
+            writer.write(f_code);
+            writer.close();
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
+        ProcessBuilder processBuilder = new ProcessBuilder("g++", "-O0", "-m64", sourceFile.getPath(), "-o", "output" + num);
+        Process compileProcess;
+        try {
+            compileProcess = processBuilder.start();
+            // Capture compilation errors
+            try (BufferedReader compileErrorReader = new BufferedReader(new InputStreamReader(compileProcess.getErrorStream()))) {
+                String line;
+                while ((line = compileErrorReader.readLine()) != null) {
+                	output.append(line + "\n");
+                }
+            }
+
+            int compileExitCode = compileProcess.waitFor();
+
+            if (compileExitCode != 0) {
+                // Compilation error occurred
+            	sourceFile.delete();
+            	return output;
+            }
+
+        } catch (IOException | InterruptedException e1) {
+            e1.printStackTrace();
+            sourceFile.delete();
+            output.append("Execution Failed, Try Again");
+            return output;
+        }
+       try {
+    	    try (BufferedWriter writer_again = new BufferedWriter(new FileWriter("pooja" + num + ".txt"))) {
+	            writer_again.write(input);
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	        }
+			ProcessBuilder processbuilder = new ProcessBuilder("./output" + num);
+			processbuilder.redirectInput(ProcessBuilder.Redirect.PIPE);
+			processbuilder.redirectOutput(ProcessBuilder.Redirect.PIPE);
+			ExecutorService executor = Executors.newSingleThreadExecutor();
+			Process process = processbuilder.start();
+			
+           Future<Boolean> future = executor.submit(() -> {
+   			
+   			try {
+   			    BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+   			    long end = System.currentTimeMillis();
+   			    String line;
+   			    long start1 = System.currentTimeMillis();
+   			    while ((line = reader.readLine()) != null) {
+   			    	output.append(line + "\n");
+   			    }
+   			    end = System.currentTimeMillis();
+   			    long time = end - start1;
+   			    System.out.println((end - start1) + "ms");
+   			    reader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+   			    while ((line = reader.readLine()) != null) {
+   			    	output.append(line + "\n");
+   			    	if(line.trim().length() > 0) return false;
+   		        }
+   			    return true;
+   			} catch (IOException e) {
+   			    e.printStackTrace();
+   			    return false;
+   			}
+           });
+
+           try {
+               boolean result = future.get(5, TimeUnit.SECONDS); // 5 seconds timeout
+               sourceFile.delete();
+               String outputFileName = "output" + num + ".exe";
+               File outputFile = new File(outputFileName);
+               outputFile.delete();
+               String fileName = "pooja" + num + ".txt";
+        	   File cookie = new File(fileName);
+        	   if (cookie.exists()) cookie.delete();
+        	   return output;
+           } catch (Exception e) {
+        	   String fileName = "pooja" + num + ".txt";
+        	   File cookie = new File(fileName);
+        	   if (cookie.exists()) cookie.delete();
+        	   sourceFile.delete();
+               String outputFileName = "output" + num + ".exe";
+               File outputFile = new File(outputFileName);
+               outputFile.delete();
+               future.cancel(true);
+               //System.out.println("TLE ");
+               output.append("Time Limit Exceeded");
+               return output;
+           }
+       }
+       catch(Exception e) {
+    	   output.append("Execution Failed, Try Again");
+    	   return output;
+       }
+	}
+	
+	public StringBuilder runpy(String code, String input) {
+        ArrayList<Long> times = new ArrayList<>();
+        // Write the Python code to a file
+        Random rand = new Random();
+        int num = rand.nextInt(1000);
+        String file_name = "main" + num + ".py";
+        File sourceFile = new File(file_name);
+        
+        try (FileWriter writer = new FileWriter(sourceFile)) {
+            writer.write(code);
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
+
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        StringBuilder output = new StringBuilder();
+        Future<StringBuilder> future = executor.submit(() -> {
+            // Run Python code
+            ProcessBuilder processBuilder = new ProcessBuilder("python3", sourceFile.getPath());
+            processBuilder.redirectInput(ProcessBuilder.Redirect.PIPE);
+            processBuilder.redirectOutput(ProcessBuilder.Redirect.PIPE);
+
+            try {
+                Process process = processBuilder.start();
+
+                // Write the input to the standard input of the process
+                try (OutputStream outputStream = process.getOutputStream()) {
+                    byte[] inputBytes = input.getBytes(StandardCharsets.UTF_8);
+                    outputStream.write(inputBytes);
+                }
+
+                // Capture the output
+                BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                String line;
+                int i = 0;
+			    boolean flag = true;
+			    String foutput = "";
+			    long start = System.currentTimeMillis();
+			    while ((line = reader.readLine()) != null) {
+			    	output.append(line);
+			    	output.append("\n");
+	            }
+			    long end = System.currentTimeMillis();
+			    reader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+			    while ((line = reader.readLine()) != null) {
+			    	output.append(line);
+			    	output.append("\n");
+	            }
+			    long time = end - start;
+			    return output;
+            } catch (IOException e) {
+                e.printStackTrace();
+                output.append("Python Error");
+                return output;
+            }
+        });
+        try {
+            StringBuilder result = future.get(5, TimeUnit.SECONDS); // 5 seconds timeout
+            sourceFile.delete();
+            return result;
+        } catch (Exception e) {
+        	sourceFile.delete();
+            future.cancel(true);
+            output.append("Python Limit Exceeded");
+            return output;
+        }
+    }
 	
 }
