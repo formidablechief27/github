@@ -131,16 +131,17 @@ public class CodeController {
 	    	System.out.println(output.trim() + " " + entry.getValue().getOutput().trim());
 	    	String res = "";
 	    	if(output.trim().equalsIgnoreCase(entry.getValue().getOutput().trim())) res = ("Accepted");
-    		else if(output.trim().contains("Exceeded")) res = ("Time Limit Exceeded");
+    		else if(output.trim().contains("Time Limit Exceeded")) res = ("Time Limit Exceeded");
     		else res = ("Wrong Answer");
+	    	System.out.println(res);
 	    	if(res.equals("Accepted")) count[0]++;
 	    	if(res.equals("Time Limit Exceeded")) {
 	    		count[1]++;
-	    		if(lt != -1) lt = ctr;
+	    		if(lt == -1) lt = ctr;
 	    	}
 	    	if(res.equals("Wrong Answer")) {
 	    		count[2]++;
-	    		if(ll != -1) ll = ctr;
+	    		if(ll == -1) ll = ctr;
 	    	}
 	    	ctr++;
 	    }
