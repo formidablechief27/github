@@ -100,7 +100,8 @@ public class CodeController {
 	public ResponseEntity<String> submit(@RequestBody Map<String, Object> requestBody) {
 		String language = (String) requestBody.get("language");
 		String code = (String) requestBody.get("code");
-		int id = ((Integer) requestBody.get("id"));
+		String p = (String) requestBody.get("id");
+		int id = Integer.parseInt(p);
 		try {code = URLDecoder.decode(code, "UTF-8");}
 		catch (UnsupportedEncodingException e) {e.printStackTrace();}
 		LinkedHashMap<String, Object> responseMap = new LinkedHashMap<>();
@@ -151,7 +152,7 @@ public class CodeController {
 	    if(ll != -1) min = ll;
 	    if(min == 100) result = "Accepted";
 	    else if(min == ll) result = "Wrong Answer on Test " + ll;
-	    else result = "Time Limit Exceeded on Test " + lt;
+	    else result = "Time Limit Exceeded on Test" + lt;
 	    responseMap.put("result", result);
 	    try {
 	        String jsonResponse = objectMapper.writeValueAsString(responseMap);
@@ -231,7 +232,7 @@ public class CodeController {
 			}
         });
         try {
-            String result = future.get(2, TimeUnit.SECONDS); 
+            String result = future.get(5, TimeUnit.SECONDS); 
             sourceFile.delete();
             return result;
         } catch (Exception e) {
@@ -337,7 +338,7 @@ public class CodeController {
            });
 
            try {
-               boolean result = future.get(2, TimeUnit.SECONDS); // 5 seconds timeout
+               boolean result = future.get(5, TimeUnit.SECONDS); // 5 seconds timeout
                sourceFile.delete();
                String outputFileName = "output" + num + ".exe";
                File outputFile = new File(outputFileName);
@@ -423,7 +424,7 @@ public class CodeController {
             }
         });
         try {
-            StringBuilder result = future.get(2, TimeUnit.SECONDS); // 5 seconds timeout
+            StringBuilder result = future.get(5, TimeUnit.SECONDS); // 5 seconds timeout
             sourceFile.delete();
             return result;
         } catch (Exception e) {
