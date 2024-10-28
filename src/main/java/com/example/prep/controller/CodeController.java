@@ -113,17 +113,45 @@ public class CodeController {
 	    for(Testcases t : list) if(t.getId() >= ques.get().getTestcaseStart() && t.getId() <= ques.get().getTestcaseEnd()) flist.add(t);
 	    for(Testcases t : flist) map.put(t.getId(), t);
 	    ArrayList<String> outputs = new ArrayList<>();
+	    int count[] = new int[3];
+	    int lt = -1, ll = -1;
+	    HashMap<String, ArrayList<Integer>> rmap = new HashMap<>();
+	    int ctr = 1;
 	    for(Map.Entry<Integer, Testcases> entry : map.entrySet()) {
 	    	String output = "";
 	    	if(language.equals("Java")) {
 	    		output = run(code, entry.getValue().getInput());
 	    	}
+	    	else if(language.equals("Cpp")) {
+	    		output = run_cpp(code, entry.getValue().getInput()).toString();
+	    	}
+	    	else {
+	    		output = runpy(code, entry.getValue().getInput()).toString();
+	    	}
 	    	System.out.println(output.trim() + " " + entry.getValue().getOutput().trim());
-	    	if(output.trim().equalsIgnoreCase(entry.getValue().getOutput().trim())) outputs.add("Accepted");
-    		else if(output.trim().contains("Time Limit Exceeded")) outputs.add("Time Limit Exceeded");
-    		else outputs.add("Wrong Answer");
+	    	String res = "";
+	    	if(output.trim().equalsIgnoreCase(entry.getValue().getOutput().trim())) res = ("Accepted");
+    		else if(output.trim().contains("Exceeded")) res = ("Time Limit Exceeded");
+    		else res = ("Wrong Answer");
+	    	if(res.equals("Accepted")) count[0]++;
+	    	if(res.equals("Time Limit Exceeded")) {
+	    		count[1]++;
+	    		if(lt != -1) lt = ctr;
+	    	}
+	    	if(res.equals("Wrong Answer")) {
+	    		count[2]++;
+	    		if(ll != -1) ll = ctr;
+	    	}
+	    	ctr++;
 	    }
-	    responseMap.put("results", outputs);
+	    String result = "";
+	    int min = 100;
+	    if(lt != -1) min = lt;
+	    if(ll != -1) min = ll;
+	    if(min == 100) result = "Accepted";
+	    else if(min == ll) result = "Wrong Answer on Test " + ll;
+	    else result = "Time Limit Exceeded on Test" + lt;
+	    responseMap.put("result", result);
 	    try {
 	        String jsonResponse = objectMapper.writeValueAsString(responseMap);
 	        System.out.println(jsonResponse);
