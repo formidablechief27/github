@@ -71,7 +71,7 @@ public class CodeController {
 	    
 	    ArrayList<String> outputs = new ArrayList<>();
 	    for(String input : inputs) {
-	    	if(language.equals("Java")) {
+	    	if(language.equalsIgnoreCase("Java")) {
 		    	String output = run(code, input);
 		    	outputs.add(output);
 		    }
