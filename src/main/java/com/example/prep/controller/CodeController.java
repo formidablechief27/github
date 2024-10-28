@@ -62,6 +62,9 @@ public class CodeController {
 		String code = (String) requestBody.get("code");
 		try {code = URLDecoder.decode(code, "UTF-8");}
 		catch (UnsupportedEncodingException e) {e.printStackTrace();}
+		System.out.println(code);
+		System.out.println(inputs);
+		System.out.println(language);
 		LinkedHashMap<String, Object> responseMap = new LinkedHashMap<>();
 		ObjectMapper objectMapper = new ObjectMapper();
 	    responseMap.put("status", "OK");
