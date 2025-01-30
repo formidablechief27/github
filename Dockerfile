@@ -8,7 +8,7 @@ FROM openjdk:17.0.1-jdk-slim
 
 # Install necessary tools and libraries for C++ and Python
 RUN apt-get update && \
-    apt-get install -y g++ python3 python3-pip && \
+    apt-get install -y python3 && \
     rm -rf /var/lib/apt/lists/*
 
 # Set the working directory
