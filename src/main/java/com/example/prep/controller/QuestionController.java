@@ -15,8 +15,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.example.prep.model.Company;
 import com.example.prep.model.Questions;
 import com.example.prep.model.Testcases;
+import com.example.prep.repository.CompanyRepository;
 import com.example.prep.repository.QuestionRepository;
 import com.example.prep.repository.TestcasesRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -28,11 +30,13 @@ public class QuestionController {
 	@Autowired
 	QuestionRepository repo;
 	TestcasesRepository t_repo;
+	CompanyRepository c_repo;
 	
 	@Autowired
-	QuestionController(QuestionRepository repo, TestcasesRepository t_repo) {
+	QuestionController(QuestionRepository repo, TestcasesRepository t_repo, CompanyRepository c_repo) {
 		this.repo = repo;
 		this.t_repo = t_repo;
+		this.c_repo = c_repo;
 	}
 	
 	@PostMapping("/questions")
@@ -91,6 +95,23 @@ public class QuestionController {
 	        responseMap.put("data", "");
 	    }
 
+	    try {
+	        String jsonResponse = objectMapper.writeValueAsString(responseMap);
+	        System.out.println(jsonResponse);
+	        return ResponseEntity.status(HttpStatus.OK).body(jsonResponse);
+	    } catch (JsonProcessingException e) {
+	        e.printStackTrace();
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing the response");
+	    }
+	}
+	
+	@PostMapping("/company")
+	public ResponseEntity<String> company(){
+		LinkedHashMap<String, Object> responseMap = new LinkedHashMap<>();
+	    ObjectMapper objectMapper = new ObjectMapper();
+	    List<Company> list = c_repo.findAll();
+	    responseMap.put("status", "OK");
+	    responseMap.put("data", list);
 	    try {
 	        String jsonResponse = objectMapper.writeValueAsString(responseMap);
 	        System.out.println(jsonResponse);
