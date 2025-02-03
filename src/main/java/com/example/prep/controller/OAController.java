@@ -151,9 +151,8 @@ public class OAController {
 	        e.printStackTrace();
 	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing the response");
 	    }
-	}
-	
-	@PostMapping("/mcq-details")
+
+	@PostMapping({"/mcq-details", "/technical", "/aptitude", "/english"})
 	public ResponseEntity<String> mcqrepository(@RequestBody Map<String, Integer> requestBody) {
 	    Integer id = requestBody.get("section-id");
 	    Integer id2 = requestBody.get("company-id");
