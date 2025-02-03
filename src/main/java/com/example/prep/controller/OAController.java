@@ -45,7 +45,7 @@ public class OAController {
 	
 	@PostMapping("/sections")
 	public ResponseEntity<String> section(@RequestBody Map<String, Integer> requestBody) {
-	    Integer id = requestBody.get("id");
+	    Integer id = requestBody.get("company-id");
 	    
 	    LinkedHashMap<String, Object> responseMap = new LinkedHashMap<>();
 	    ObjectMapper objectMapper = new ObjectMapper();
@@ -59,7 +59,7 @@ public class OAController {
 	    		HashMap<String, String> fmap = new HashMap<>();
 	    		idd++;
 	    		String p = idd + "";
-	    		fmap.put("id", p);
+	    		fmap.put("ques-id", p);
 	    		fmap.put("name", "Coding Problem");
 	    		int mks = 20 + (10 * i);
 	    		ArrayList<Integer> mm = new ArrayList<>();
@@ -73,7 +73,7 @@ public class OAController {
 	    		idd++;
 	    		String p = idd + "";
 	    		HashMap<String, String> fmap = new HashMap<>();
-	    		fmap.put("id", p);
+	    		fmap.put("section-id", p);
 	    		fmap.put("name", "Aptitude");
 	    		int mks = opt.get().getAptitude();
 	    		ArrayList<Integer> mm = new ArrayList<>();
@@ -96,7 +96,7 @@ public class OAController {
 	    		idd++;
 	    		String p = idd + "";
 	    		HashMap<String, String> fmap = new HashMap<>();
-	    		fmap.put("id", p);
+	    		fmap.put("section-id", p);
 	    		fmap.put("name", "Core");
 	    		int mks = opt.get().getCore();
 	    		String m = mks + "";
@@ -119,7 +119,7 @@ public class OAController {
 	    		idd++;
 	    		String p = idd + "";
 	    		HashMap<String, String> fmap = new HashMap<>();
-	    		fmap.put("id", p);
+	    		fmap.put("section-id", p);
 	    		fmap.put("name", "English");
 	    		int mks = opt.get().getEnglish();
 	    		String m = mks + "";
@@ -152,11 +152,95 @@ public class OAController {
 	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing the response");
 	    }
 	}
-	
-	@PostMapping("/mcq-details")
-	public ResponseEntity<String> mcqrepository(@RequestBody Map<String, Integer> requestBody) {
-	    Integer id = requestBody.get("id");
+
+        @PostMapping("/aptitude")
+	public ResponseEntity<String> mcqre1pository(@RequestBody Map<String, Integer> requestBody) {
+	    Integer id = requestBody.get("section-id");
+	    Integer id2 = requestBody.get("company-id");
+	    LinkedHashMap<String, Object> responseMap = new LinkedHashMap<>();
+	    ObjectMapper objectMapper = new ObjectMapper();
 	    
+	    List<Mcq> mcq = m_repo.findAll();
+	    HashMap<Long, Mcq> map = new HashMap<>();
+	    for(Mcq m : mcq) map.put(m.getId(), m);
+	    ArrayList<Integer> arr = DataCache.map.get(id);
+	    System.out.println(arr);
+	    List<Mcq> flist = new ArrayList<>();
+	    for(int ele : arr) flist.add(map.get((long)ele));
+
+	    responseMap.put("status", "OK");
+	    responseMap.put("data", flist);
+
+	    try {
+	        String jsonResponse = objectMapper.writeValueAsString(responseMap);
+	        System.out.println(jsonResponse);
+	        return ResponseEntity.status(HttpStatus.OK).body(jsonResponse);
+	    } catch (JsonProcessingException e) {
+	        e.printStackTrace();
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing the response");
+	    }
+	}
+	
+	@PostMapping("/technical")
+	public ResponseEntity<String> mcqre5pository(@RequestBody Map<String, Integer> requestBody) {
+	    Integer id = requestBody.get("section-id");
+	    Integer id2 = requestBody.get("company-id");
+	    LinkedHashMap<String, Object> responseMap = new LinkedHashMap<>();
+	    ObjectMapper objectMapper = new ObjectMapper();
+	    
+	    List<Mcq> mcq = m_repo.findAll();
+	    HashMap<Long, Mcq> map = new HashMap<>();
+	    for(Mcq m : mcq) map.put(m.getId(), m);
+	    ArrayList<Integer> arr = DataCache.map.get(id);
+	    System.out.println(arr);
+	    List<Mcq> flist = new ArrayList<>();
+	    for(int ele : arr) flist.add(map.get((long)ele));
+
+	    responseMap.put("status", "OK");
+	    responseMap.put("data", flist);
+
+	    try {
+	        String jsonResponse = objectMapper.writeValueAsString(responseMap);
+	        System.out.println(jsonResponse);
+	        return ResponseEntity.status(HttpStatus.OK).body(jsonResponse);
+	    } catch (JsonProcessingException e) {
+	        e.printStackTrace();
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing the response");
+	    }
+	}
+
+	@PostMapping("/english")
+	public ResponseEntity<String> mcqreposit7ory(@RequestBody Map<String, Integer> requestBody) {
+	    Integer id = requestBody.get("section-id");
+	    Integer id2 = requestBody.get("company-id");
+	    LinkedHashMap<String, Object> responseMap = new LinkedHashMap<>();
+	    ObjectMapper objectMapper = new ObjectMapper();
+	    
+	    List<Mcq> mcq = m_repo.findAll();
+	    HashMap<Long, Mcq> map = new HashMap<>();
+	    for(Mcq m : mcq) map.put(m.getId(), m);
+	    ArrayList<Integer> arr = DataCache.map.get(id);
+	    System.out.println(arr);
+	    List<Mcq> flist = new ArrayList<>();
+	    for(int ele : arr) flist.add(map.get((long)ele));
+
+	    responseMap.put("status", "OK");
+	    responseMap.put("data", flist);
+
+	    try {
+	        String jsonResponse = objectMapper.writeValueAsString(responseMap);
+	        System.out.println(jsonResponse);
+	        return ResponseEntity.status(HttpStatus.OK).body(jsonResponse);
+	    } catch (JsonProcessingException e) {
+	        e.printStackTrace();
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing the response");
+	    }
+	}
+
+	@PostMapping("/mcq-details")
+	public ResponseEntity<String> mcqrepositor9y(@RequestBody Map<String, Integer> requestBody) {
+	    Integer id = requestBody.get("section-id");
+	    Integer id2 = requestBody.get("company-id");
 	    LinkedHashMap<String, Object> responseMap = new LinkedHashMap<>();
 	    ObjectMapper objectMapper = new ObjectMapper();
 	    
