@@ -45,7 +45,7 @@ public class OAController {
 	
 	@PostMapping("/sections")
 	public ResponseEntity<String> section(@RequestBody Map<String, Integer> requestBody) {
-	    Integer id = requestBody.get("id");
+	    Integer id = requestBody.get("company-id");
 	    
 	    LinkedHashMap<String, Object> responseMap = new LinkedHashMap<>();
 	    ObjectMapper objectMapper = new ObjectMapper();
@@ -59,7 +59,7 @@ public class OAController {
 	    		HashMap<String, String> fmap = new HashMap<>();
 	    		idd++;
 	    		String p = idd + "";
-	    		fmap.put("id", p);
+	    		fmap.put("ques-id", p);
 	    		fmap.put("name", "Coding Problem");
 	    		int mks = 20 + (10 * i);
 	    		ArrayList<Integer> mm = new ArrayList<>();
@@ -73,7 +73,7 @@ public class OAController {
 	    		idd++;
 	    		String p = idd + "";
 	    		HashMap<String, String> fmap = new HashMap<>();
-	    		fmap.put("id", p);
+	    		fmap.put("section-id", p);
 	    		fmap.put("name", "Aptitude");
 	    		int mks = opt.get().getAptitude();
 	    		ArrayList<Integer> mm = new ArrayList<>();
@@ -96,7 +96,7 @@ public class OAController {
 	    		idd++;
 	    		String p = idd + "";
 	    		HashMap<String, String> fmap = new HashMap<>();
-	    		fmap.put("id", p);
+	    		fmap.put("section-id", p);
 	    		fmap.put("name", "Core");
 	    		int mks = opt.get().getCore();
 	    		String m = mks + "";
@@ -119,7 +119,7 @@ public class OAController {
 	    		idd++;
 	    		String p = idd + "";
 	    		HashMap<String, String> fmap = new HashMap<>();
-	    		fmap.put("id", p);
+	    		fmap.put("section-id", p);
 	    		fmap.put("name", "English");
 	    		int mks = opt.get().getEnglish();
 	    		String m = mks + "";
@@ -155,8 +155,8 @@ public class OAController {
 	
 	@PostMapping("/mcq-details")
 	public ResponseEntity<String> mcqrepository(@RequestBody Map<String, Integer> requestBody) {
-	    Integer id = requestBody.get("id");
-	    
+	    Integer id = requestBody.get("section-id");
+	    Integer id2 = requestBody.get("company-id");
 	    LinkedHashMap<String, Object> responseMap = new LinkedHashMap<>();
 	    ObjectMapper objectMapper = new ObjectMapper();
 	    
