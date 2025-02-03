@@ -79,7 +79,7 @@ public class OAController {
 	    		ArrayList<Integer> mm = new ArrayList<>();
 	    		int cnt = mks;
 	    		for(Mcq mcq : list) {
-	    			if(mcq.getType() == "apt") {
+	    			if(mcq.getType().trim().equals("apt")) {
 	    				if(cnt > 0) {
 	    					cnt--;
 	    					long ip = mcq.getId();
@@ -103,7 +103,7 @@ public class OAController {
 	    		ArrayList<Integer> mm = new ArrayList<>();
 	    		int cnt = mks;
 	    		for(Mcq mcq : list) {
-	    			if(mcq.getType() == "core") {
+	    			if(mcq.getType().trim().equals("core")) {
 	    				if(cnt > 0) {
 	    					cnt--;
 	    					long ip = mcq.getId();
@@ -126,7 +126,8 @@ public class OAController {
 	    		ArrayList<Integer> mm = new ArrayList<>();
 	    		int cnt = mks;
 	    		for(Mcq mcq : list) {
-	    			if(mcq.getType() == "eng") {
+	    			System.out.println(mcq.getType());
+	    			if(mcq.getType().trim().equals("eng")) {
 	    				if(cnt > 0) {
 	    					cnt--;
 	    					long ip = mcq.getId();
@@ -141,7 +142,7 @@ public class OAController {
 	    }
 	    responseMap.put("status", "OK");
 	    responseMap.put("data", map);
-
+	    System.out.println(DataCache.map);
 	    try {
 	        String jsonResponse = objectMapper.writeValueAsString(responseMap);
 	        System.out.println(jsonResponse);
@@ -163,6 +164,7 @@ public class OAController {
 	    HashMap<Long, Mcq> map = new HashMap<>();
 	    for(Mcq m : mcq) map.put(m.getId(), m);
 	    ArrayList<Integer> arr = DataCache.map.get(id);
+	    System.out.println(arr);
 	    List<Mcq> flist = new ArrayList<>();
 	    for(int ele : arr) flist.add(map.get((long)ele));
 
