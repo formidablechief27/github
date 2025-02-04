@@ -159,7 +159,7 @@ public class OAController {
 	    		ignore.add(idd);
 	    		String p = idd + "";
 	    		fmap.put("ques-id", p);
-	    		fmap.put("name", "Coding Problem");
+	    		fmap.put("name", "dsa");
 	    		int mks = 20 + (10 * i);
 	    		ArrayList<Integer> mm = new ArrayList<>();
 	    		mm.add(repo.findById(idd).get().getId());
@@ -173,7 +173,7 @@ public class OAController {
 	    		String p = idd + "";
 	    		HashMap<String, String> fmap = new HashMap<>();
 	    		fmap.put("section-id", p);
-	    		fmap.put("name", "Aptitude");
+	    		fmap.put("name", "aptitude");
 	    		int mks = opt.get().getAptitude();
 	    		ArrayList<Integer> mm = new ArrayList<>();
 	    		int cnt = mks;
@@ -196,7 +196,7 @@ public class OAController {
 	    		String p = idd + "";
 	    		HashMap<String, String> fmap = new HashMap<>();
 	    		fmap.put("section-id", p);
-	    		fmap.put("name", "Core");
+	    		fmap.put("name", "technical");
 	    		int mks = opt.get().getCore();
 	    		String m = mks + "";
 	    		ArrayList<Integer> mm = new ArrayList<>();
@@ -219,7 +219,7 @@ public class OAController {
 	    		String p = idd + "";
 	    		HashMap<String, String> fmap = new HashMap<>();
 	    		fmap.put("section-id", p);
-	    		fmap.put("name", "English");
+	    		fmap.put("name", "english");
 	    		int mks = opt.get().getEnglish();
 	    		String m = mks + "";
 	    		ArrayList<Integer> mm = new ArrayList<>();
