@@ -314,10 +314,10 @@ public class Magic {
 					    length TEXT,
 					    difficulty TEXT,
 					    link TEXT,
-					    dsa BOOLEAN,
-					    aptitude BOOLEAN,
-					    core BOOLEAN,
-					    english BOOLEAN
+					    dsa INT,
+					    aptitude INT,
+					    core INT,
+					    english INT
 					)""";
 			conn.prepareStatement(createCompanyTable).executeUpdate();
 
