@@ -73,13 +73,7 @@ public class OAController {
 	    responseMap.put("status", "OK");
 	    List<Mcq> list = m_repo.findAll();
 	    if(opt.isPresent()) {
-	    	int idd = 0;
-	    	ArrayList<Object> ll = new ArrayList<>();
-	    	for(int i=0;i<opt.get().getDsa();i++) {
-	    		idd++;
-	    		ll.add(dsa(repo.findById(idd).get().getId()));
-	    	}
-	    	responseMap.put("dsa", ll);
+	    	int idd = opt.get().getDsa();
 	    	if(opt.get().getAptitude() > 0) {
 	    		idd++;
 	    		int mks = opt.get().getAptitude();
@@ -128,6 +122,13 @@ public class OAController {
 	    		}
 	    		responseMap.put("english", mcq(map, mm));
 	    	}
+		idd = 0;
+	    	ArrayList<Object> ll = new ArrayList<>();
+	    	for(int i=0;i<opt.get().getDsa();i++) {
+	    		idd++;
+	    		ll.add(dsa(repo.findById(idd).get().getId()));
+	    	}
+	    	responseMap.put("dsa", ll);
 	    }
 	    
 	    try {
