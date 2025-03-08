@@ -23,7 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Controller
 public class ResumeController {
 	
-	@PostMapping("/upload-resume")
+	@PostMapping("/resume-questions")
     public ResponseEntity<?> uploadResume(@RequestParam("resume") MultipartFile file) {
         if (file.isEmpty()) {
             return ResponseEntity.badRequest().body("File is empty.");
@@ -43,7 +43,7 @@ public class ResumeController {
 
             String apiResponse = sendApiRequest(payload);
             System.out.println(apiResponse);
-            List<String> questions = parseQuestions(apiResponse);
+            List<LinkedHashMap<String, Object>> questions = parseQuestions(apiResponse);
             LinkedHashMap<String, Object> map = new LinkedHashMap<>();
             LinkedHashMap<String, Object> datamap = new LinkedHashMap<>();
             map.put("status", "OK");
@@ -129,8 +129,8 @@ public class ResumeController {
         return "";
     }
     
-    private static List<String> parseQuestions(String apiResponse) {
-        List<String> questions = new ArrayList<>();
+    private static List<LinkedHashMap<String, Object>> parseQuestions(String apiResponse) {
+        List<LinkedHashMap<String, Object>> questions = new ArrayList<>();
         int ind = -1;
         String str = "";
         String find = "1.";
@@ -144,7 +144,18 @@ public class ResumeController {
         			if(apiResponse.charAt(idx) == '?') break;
         			idx++;
         		}
-        		questions.add(str);
+        		LinkedHashMap<String, Object> pp = new LinkedHashMap<>();
+        		int num = 0;
+        		for(int j=0;j<find.length();j++) {
+        			char ch = find.charAt(j);
+        			if(ch >= 48 && ch <= 57) {
+        				num *= 10;
+        				num += (ch - 48);
+        			}
+        		}
+        		pp.put("question-id", num);
+        		pp.put("description", str);
+        		questions.add(pp);
         		i = idx;
         		if(find.equals("1.")) find = "2.";
         		else if(find.equals("2.")) find = "3.";
