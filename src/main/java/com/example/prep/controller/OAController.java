@@ -73,13 +73,7 @@ public class OAController {
 	    responseMap.put("status", "OK");
 	    List<Mcq> list = m_repo.findAll();
 	    if(opt.isPresent()) {
-	    	int idd = 0;
-	    	ArrayList<Object> ll = new ArrayList<>();
-	    	for(int i=0;i<opt.get().getDsa();i++) {
-	    		idd++;
-	    		ll.add(dsa(repo.findById(idd).get().getId()));
-	    	}
-	    	responseMap.put("dsa", ll);
+	    	int idd = opt.get().getDsa();
 	    	if(opt.get().getAptitude() > 0) {
 	    		idd++;
 	    		int mks = opt.get().getAptitude();
@@ -128,6 +122,13 @@ public class OAController {
 	    		}
 	    		responseMap.put("english", mcq(map, mm));
 	    	}
+		idd = 0;
+	    	ArrayList<Object> ll = new ArrayList<>();
+	    	for(int i=0;i<opt.get().getDsa();i++) {
+	    		idd++;
+	    		ll.add(dsa(repo.findById(idd).get().getId()));
+	    	}
+	    	responseMap.put("dsa", ll);
 	    }
 	    
 	    try {
@@ -159,7 +160,7 @@ public class OAController {
 	    		ignore.add(idd);
 	    		String p = idd + "";
 	    		fmap.put("ques-id", p);
-	    		fmap.put("name", "Coding Problem");
+	    		fmap.put("name", "dsa");
 	    		int mks = 20 + (10 * i);
 	    		ArrayList<Integer> mm = new ArrayList<>();
 	    		mm.add(repo.findById(idd).get().getId());
@@ -173,7 +174,7 @@ public class OAController {
 	    		String p = idd + "";
 	    		HashMap<String, String> fmap = new HashMap<>();
 	    		fmap.put("section-id", p);
-	    		fmap.put("name", "Aptitude");
+	    		fmap.put("name", "aptitude");
 	    		int mks = opt.get().getAptitude();
 	    		ArrayList<Integer> mm = new ArrayList<>();
 	    		int cnt = mks;
@@ -196,7 +197,7 @@ public class OAController {
 	    		String p = idd + "";
 	    		HashMap<String, String> fmap = new HashMap<>();
 	    		fmap.put("section-id", p);
-	    		fmap.put("name", "Core");
+	    		fmap.put("name", "technical");
 	    		int mks = opt.get().getCore();
 	    		String m = mks + "";
 	    		ArrayList<Integer> mm = new ArrayList<>();
@@ -219,7 +220,7 @@ public class OAController {
 	    		String p = idd + "";
 	    		HashMap<String, String> fmap = new HashMap<>();
 	    		fmap.put("section-id", p);
-	    		fmap.put("name", "English");
+	    		fmap.put("name", "english");
 	    		int mks = opt.get().getEnglish();
 	    		String m = mks + "";
 	    		ArrayList<Integer> mm = new ArrayList<>();
