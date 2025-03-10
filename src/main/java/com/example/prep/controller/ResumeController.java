@@ -10,6 +10,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
@@ -17,7 +18,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
 @Controller
@@ -55,6 +58,23 @@ public class ResumeController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                                  .body("An error occurred: " + e.getMessage());
         }
+    }
+	
+	@PostMapping("/follow-up-question")
+    public ResponseEntity<?> pp1(
+            @RequestParam("followup-id") String fid,
+            @RequestParam("question-id") String qid,
+            @RequestParam("answer") String ans) {
+		LinkedHashMap<String, Object> map = new LinkedHashMap<>();
+        LinkedHashMap<String, Object> datamap = new LinkedHashMap<>();
+        map.put("status", "OK");
+        LinkedHashMap<String, Object> question = new LinkedHashMap<>();
+        question.put("question-id", qid);
+        question.put("followup-id", Math.max(1, Integer.parseInt(fid) + 1));
+        question.put("description", "This is a sample follow up question");
+        datamap.put("question", question);
+        map.put("data", datamap);
+        return ResponseEntity.ok(map);
     }
 	 
 	private String extractTextFromPDF(InputStream inputStream) {
