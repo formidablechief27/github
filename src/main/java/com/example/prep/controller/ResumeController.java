@@ -61,21 +61,31 @@ public class ResumeController {
     }
 	
 	@PostMapping("/follow-up-question")
-    public ResponseEntity<?> pp1(
-            @RequestParam("followup-id") String fid,
-            @RequestParam("question-id") String qid,
-            @RequestParam("answer") String ans) {
-		LinkedHashMap<String, Object> map = new LinkedHashMap<>();
-        LinkedHashMap<String, Object> datamap = new LinkedHashMap<>();
-        map.put("status", "OK");
-        LinkedHashMap<String, Object> question = new LinkedHashMap<>();
-        question.put("question-id", qid);
-        question.put("followup-id", Math.max(1, Integer.parseInt(fid) + 1));
-        question.put("description", "This is a sample follow up question");
-        datamap.put("question", question);
-        map.put("data", datamap);
-        return ResponseEntity.ok(map);
-    }
+	public ResponseEntity<?> pp1(
+	        @RequestParam("followup-id") String fid,
+	        @RequestParam("question-id") String qid,
+	        @RequestParam("answer") String ans) {
+
+	    String prompt = "Based on the following answer, generate a follow-up question:\nAnswer: " + ans;
+	    String payload = buildPayload(prompt);
+	    String aiResponse = sendApiRequest(payload);
+	    System.out.println(aiResponse);
+	    String followUpQuestion = aiResponse.substring(aiResponse.indexOf("\"content\"") + 11, aiResponse.indexOf("\"logprobs\"") - 3);
+
+	    LinkedHashMap<String, Object> map = new LinkedHashMap<>();
+	    LinkedHashMap<String, Object> datamap = new LinkedHashMap<>();
+	    
+	    map.put("status", "OK");
+	    LinkedHashMap<String, Object> question = new LinkedHashMap<>();
+	    question.put("question-id", qid);
+	    question.put("followup-id", Math.max(1, Integer.parseInt(fid) + 1));
+	    question.put("description", followUpQuestion);
+
+	    datamap.put("question", question);
+	    map.put("data", datamap);
+
+	    return ResponseEntity.ok(map);
+	}
 	 
 	private String extractTextFromPDF(InputStream inputStream) {
         try (PDDocument document = PDDocument.load(inputStream)) {
