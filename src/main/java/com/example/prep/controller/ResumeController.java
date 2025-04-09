@@ -50,6 +50,8 @@ public class ResumeController {
 	    topic.add("Troubleshooting");
 	 */
 	
+	String t[] = {"Software Development and Frameworks", "Databases And Optimization", "Devops And Deployment", "Problem Solvings", "Project Design", "Troubleshooting"};
+	
 	@PostMapping("/interview-stats")
 	public ResponseEntity<?> interview_stats() {
 		try {
@@ -57,15 +59,91 @@ public class ResumeController {
             List<Interview> idata = i.findAll();
             List<LinkedHashMap<String, Object>> data = new ArrayList<>();
             for(Interview ii : idata) {
-            	LinkedHashMap<String, Object> curr = new LinkedHashMap<>();
-            	curr.put("interview-id", ii.getId());
-            	curr.put("Software Development and Frameworks", new int[]{ii.getS1(), ii.getC1()});
-            	curr.put("Databases And Optimization", new int[]{ii.getS2(), ii.getC2()});
-            	curr.put("Devops And Deployment", new int[]{ii.getS3(), ii.getC3()});
-            	curr.put("Problem Solvings", new int[]{ii.getS4(), ii.getC4()});
-            	curr.put("Project Design", new int[]{ii.getS5(), ii.getC5()});
-            	curr.put("Troubleshooting", new int[]{ii.getS6(), ii.getC6()});
-            	data.add(curr);
+            	LinkedHashMap<String, Object> datamap = new LinkedHashMap<>();
+            	String str = ii.getStrengths();
+            	if(str.length() < 4) continue;
+            	ArrayList<LinkedHashMap<String, Object>> arr = new ArrayList<>();
+            	ArrayList<String> strengths = new ArrayList<>();
+            	int id1 = 0;
+            	int id2 = str.indexOf("$");
+            	String s1 = str.substring(id1, id2);
+            	id1 = id2 + 1;
+            	id2 = str.indexOf("$", id1);
+            	String s2 = str.substring(id1, id2);
+            	id1 = id2 + 1;
+            	id2 = str.indexOf("$", id1);
+            	String s3 = str.substring(id1, id2);
+            	strengths.add(s1);
+            	strengths.add(s2);
+            	strengths.add(s3);
+            	String wk = ii.getWeaknesses();
+            	ArrayList<String> weaknesses = new ArrayList<>();
+            	id1 = 0;
+            	id2 = wk.indexOf("$");
+            	String s4 = wk.substring(id1, id2);
+            	id1 = id2 + 1;
+            	id2 = wk.indexOf("$", id1);
+            	String s5 = wk.substring(id1, id2);
+            	id1 = id2 + 1;
+            	id2 = wk.indexOf("$", id1);
+            	String s6 = wk.substring(id1, id2);
+            	weaknesses.add(s4);
+            	weaknesses.add(s5);
+            	weaknesses.add(s6);
+            	String scr = ii.getScore();
+            	int cnt[] = new int[7];
+            	int scores[] = new int[7];
+            	int prev = -1;
+            	for(int j=1;j<=6;j++) {
+            		id1 = prev + 1;
+            		id2 = scr.indexOf("$", id1);
+            		int v = Integer.parseInt(scr.substring(id1, id2));
+            		scores[j] = v;
+            		id1 = id2 + 1;
+            		id2 = scr.indexOf("$", id1);
+            		int s = Integer.parseInt(scr.substring(id1, id2));
+            		cnt[j] = s;
+            		prev = id2;
+            	}
+            	String ffans = ii.getAnalysis();
+            	prev = -1;
+            	while(true) {
+            		LinkedHashMap<String, Object> current = new LinkedHashMap<>();
+            		id1 = prev + 1;
+            		id2 = ffans.indexOf("$", id1);
+            		if(id2 == -1) break;
+            		if(id2 < id1) break;
+            		String q = ffans.substring(id1, id2);
+            		if(q.length() < 2) break;
+            		id1 = id2 + 1;
+            		id2 = ffans.indexOf("$", id1);
+            		String s = ffans.substring(id1, id2);
+            		id1 = id2 + 1;
+            		id2 = ffans.indexOf("$", id1);
+            		String im = ffans.substring(id1, id2);
+            		id1 = id2 + 1;
+            		id2 = ffans.indexOf("$", id1);
+            		String tt = ffans.substring(id1, id2);
+            		current.put("question", q);
+    	    	    current.put("topic", s);
+    	    	    current.put("score", im);
+    	    	    current.put("improvement", tt);
+    	    	    prev = id2;
+    	    	    arr.add(current);
+            	}
+            	LinkedHashMap<String, Integer> dd = new LinkedHashMap<>();
+        	    if(cnt[1] > 0) dd.put("Software Development and Frameworks", scores[1]);
+        	    if(cnt[2] > 0) dd.put("Databases And Optimization", scores[2]);
+        	    if(cnt[3] > 0) dd.put("Devops And Deployment", scores[3]);
+        	    if(cnt[4] > 0) dd.put("Problem Solvings", scores[4]);
+        	    if(cnt[5] > 0) dd.put("Project Design", scores[5]);
+        	    if(cnt[6] > 0) dd.put("Troubleshooting", scores[6]);
+        	    datamap.put("interview-id", ii.getId());
+        	    datamap.put("scores", dd);
+        	    datamap.put("strengths", strengths);
+        	    datamap.put("weaknesses", weaknesses);
+        	    datamap.put("analysis", arr);
+        	    data.add(datamap);
             }
             map.put("status", "OK");
             map.put("data", data);
@@ -94,7 +172,7 @@ public class ResumeController {
                             + resumeText;
 
             String payload = buildPayload(prompt);
-            Interview ii = new Interview(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+            Interview ii = new Interview("", "", "", "");
             i.save(ii);
             int id = ii.getId();
             String apiResponse = sendApiRequest(payload);
@@ -188,6 +266,7 @@ public class ResumeController {
 	    topic_who.add("Troubleshooting");
 	    String fans = "";
 	    ArrayList<LinkedHashMap<String, Object>> arr = new ArrayList<>();
+	    String ffans = "";
 	    for(Map.Entry<String, String> entry : ans.entrySet()) {
 	    	try {
 	    		String ques = entry.getKey();
@@ -220,6 +299,7 @@ public class ResumeController {
 	    	    current.put("topic", topic_who.get(topic - 1));
 	    	    current.put("score", score);
 	    	    current.put("improvement", improve);
+	    	    ffans += ques + "$" + topic + "$" + score + "$" + improve + "$";
 	    	    arr.add(current);
 	    	}
 	    	catch(Exception e) {}
@@ -230,15 +310,19 @@ public class ResumeController {
 	    System.out.println("bhaa");
 	    System.out.println(response);
 	    List<String> go = karo(response);
+	    String str = "", wk = "";
 	    List<String> f = new ArrayList<>();
 	    f.add(go.get(0));
 	    f.add(go.get(1));
 	    f.add(go.get(2));
+	    str = f.get(0) + "$" + f.get(1) + "$" + f.get(2) + "$";
 	    List<String> s = new ArrayList<>();
 	    s.add(go.get(3));
 	    s.add(go.get(4));
 	    s.add(go.get(5));
+	    wk = s.get(0) + "$" + s.get(1) + "$" + s.get(2) + "$"; 
 	    for(int t=1;t<=7;t++) if(cnt[t] > 0) scores[t] /= cnt[t];
+	    String scr = "";
 	    LinkedHashMap<String, Integer> dd = new LinkedHashMap<>();
 	    if(cnt[1] > 0) dd.put("Software Development and Frameworks", scores[1]);
 	    if(cnt[2] > 0) dd.put("Databases And Optimization", scores[2]);
@@ -246,19 +330,12 @@ public class ResumeController {
 	    if(cnt[4] > 0) dd.put("Problem Solvings", scores[4]);
 	    if(cnt[5] > 0) dd.put("Project Design", scores[5]);
 	    if(cnt[6] > 0) dd.put("Troubleshooting", scores[6]);
+	    for(int j=1;j<=6;j++) scr += scores[j] + "$" + cnt[j] + "$";
 	    Interview ii = i.getById(Integer.parseInt(iid));
-	    ii.setS1(scores[1]);
-	    ii.setC1(cnt[1]);
-	    ii.setS2(scores[2]);
-	    ii.setC2(cnt[2]);
-	    ii.setS3(scores[3]);
-	    ii.setC3(cnt[3]);
-	    ii.setS4(scores[4]);
-	    ii.setC4(cnt[4]);
-	    ii.setS5(scores[5]);
-	    ii.setC5(cnt[5]);
-	    ii.setS6(scores[6]);
-	    ii.setC6(cnt[6]);
+	    ii.setAnalysis(ffans);
+	    ii.setScore(scr);
+	    ii.setStrengths(str);
+	    ii.setWeaknesses(wk);
 	    i.save(ii);
 	    datamap.put("scores", dd);
 	    datamap.put("strengths", f);
@@ -448,11 +525,6 @@ public class ResumeController {
         		else if(find.equals("7.")) find = "8.";
         		else if(find.equals("8.")) find = "9.";
         		else if(find.equals("9.")) find = "10.";
-        		else if(find.equals("10.")) find = "11.";
-        		else if(find.equals("11.")) find = "12.";
-        		else if(find.equals("12.")) find = "13.";
-        		else if(find.equals("13.")) find = "14.";
-        		else if(find.equals("14.")) find = "15.";
         		else break;
         	}
         }
