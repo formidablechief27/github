@@ -158,9 +158,40 @@ public class ResumeController {
 	@PostMapping("/evaluate-oa")
 	public ResponseEntity<?> evaluate(@RequestBody Map<String, Object> requestBody) {
 		try {
+			List<Integer> aptitude = (List<Integer>) requestBody.get("aptitude");
+			List<Integer> technical = (List<Integer>) requestBody.get("technical");
+			List<Integer> english = (List<Integer>) requestBody.get("english");
+			List<Integer> core = (List<Integer>) requestBody.get("core");
+			int score = 0;
+			
             LinkedHashMap<String, Object> map = new LinkedHashMap<>();
             LinkedHashMap<String, Object> datamap = new LinkedHashMap<>();
             map.put("status", "OK");
+            map.put("data", datamap);
+            return ResponseEntity.ok(map);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body("An error occurred: " + e.getMessage());
+        }
+	}
+	
+	@PostMapping("/hr-questions")
+	public ResponseEntity<?> hr(@RequestParam("company") String company) {
+		try {
+			String prompt = "Generate 10 HR Round questions and company questions for the company " + company + ", please dont give any titles, just the questions. Give in the format 1. Question 1 2. Question 2 .... and so on.. Please add a ? at the end of every question";
+			String payload = buildPayload(prompt);
+			Interview ii = new Interview("", "", "", "");
+            i.save(ii);
+            int id = ii.getId();
+            String apiResponse = sendApiRequest(payload);
+            System.out.println(apiResponse);
+            List<LinkedHashMap<String, Object>> questions = parseQuestions(apiResponse);
+            LinkedHashMap<String, Object> map = new LinkedHashMap<>();
+            LinkedHashMap<String, Object> datamap = new LinkedHashMap<>();
+            map.put("status", "OK");
+            datamap.put("interview-id", id);
+            datamap.put("questions", questions);
             map.put("data", datamap);
             return ResponseEntity.ok(map);
         } catch (Exception e) {
@@ -177,7 +208,7 @@ public class ResumeController {
 			String ftopics = "";
 			for(String s : topics) ftopics += topics + ",";
 			String difficulty = (String) requestBody.get("difficulty");
-			Integer count = (Integer) requestBody.get("count");
+			int count = Integer.parseInt((String)requestBody.get("count"));
 			String prompt = "Based on the following topics " + ftopics + " , generate" + count + " balanced interview questions for difficulty " + difficulty + " please dont give any titles, just the questions. Give in the format 1. Question 1 2. Question 2 .... and so on.. Please only generate " + count + "questions and add a ? at the end of every question";
 					String payload = buildPayload(prompt);
 			Interview ii = new Interview("", "", "", "");
