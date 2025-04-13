@@ -155,6 +155,51 @@ public class ResumeController {
         }
 	}
 	
+	@PostMapping("/evaluate-oa")
+	public ResponseEntity<?> evaluate(@RequestBody Map<String, Object> requestBody) {
+		try {
+            LinkedHashMap<String, Object> map = new LinkedHashMap<>();
+            LinkedHashMap<String, Object> datamap = new LinkedHashMap<>();
+            map.put("status", "OK");
+            map.put("data", datamap);
+            return ResponseEntity.ok(map);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body("An error occurred: " + e.getMessage());
+        }
+	}
+	
+	@PostMapping("/custom-interview")
+	public ResponseEntity<?> custom(@RequestBody Map<String, Object> requestBody) {
+		try {
+			List<String> topics = (List<String>) requestBody.get("topics");
+			String ftopics = "";
+			for(String s : topics) ftopics += topics + ",";
+			String difficulty = (String) requestBody.get("difficulty");
+			Integer count = (Integer) requestBody.get("count");
+			String prompt = "Based on the following topics " + ftopics + " , generate" + count + " balanced interview questions for difficulty " + difficulty + " please dont give any titles, just the questions. Give in the format 1. Question 1 2. Question 2 .... and so on.. Please only generate " + count + "questions and add a ? at the end of every question";
+					String payload = buildPayload(prompt);
+			Interview ii = new Interview("", "", "", "");
+            i.save(ii);
+            int id = ii.getId();
+            String apiResponse = sendApiRequest(payload);
+            System.out.println(apiResponse);
+            List<LinkedHashMap<String, Object>> questions = parseQuestions(apiResponse, count);
+            LinkedHashMap<String, Object> map = new LinkedHashMap<>();
+            LinkedHashMap<String, Object> datamap = new LinkedHashMap<>();
+            map.put("status", "OK");
+            datamap.put("interview-id", id);
+            datamap.put("questions", questions);
+            map.put("data", datamap);
+            return ResponseEntity.ok(map);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body("An error occurred: " + e.getMessage());
+        }
+	}
+	
 	@PostMapping("/resume-questions")
     public ResponseEntity<?> uploadResume(@RequestParam("resume") MultipartFile file) {
         if (file.isEmpty()) {
@@ -477,6 +522,49 @@ public class ResumeController {
         		if(find.equals("1.")) find = "2.";
         		else if(find.equals("2.")) find = "3.";
         		else if(find.equals("3.")) find = "1.";
+        	}
+        }
+        System.out.println(questions);
+        return questions;
+    }
+    
+    private static List<LinkedHashMap<String, Object>> parseQuestions(String apiResponse, int count) {
+        List<LinkedHashMap<String, Object>> questions = new ArrayList<>();
+        int ind = -1;
+        String str = "";
+        String find = "1.";
+        int ctr = 1;
+        int itr = 1;
+        for(int i=0;i<apiResponse.length();i++) {
+        	if(ctr > count) break;
+        	if(i + find.length() > apiResponse.length()) break;
+        	if(apiResponse.substring(i, i + find.length()).equals(find)) {
+        		int idx = i + find.length() + 1;
+        		str = "";
+        		while(true) {
+        			str += apiResponse.charAt(idx);
+        			if(apiResponse.charAt(idx) == '?') break;
+        			idx++;
+        		}
+        		LinkedHashMap<String, Object> pp = new LinkedHashMap<>();
+        		int num = 0;
+        		for(int j=0;j<find.length();j++) {
+        			char ch = find.charAt(j);
+        			if(ch >= 48 && ch <= 57) {
+        				num *= 10;
+        				num += (ch - 48);
+        			}
+        		}
+        		pp.put("question-id", num);
+        		pp.put("description", str);
+        		ArrayList<Integer> ppp = new ArrayList<>();
+        		ppp.add(itr);
+        		ppp.add(0);
+        		DataCache.ques.put(ppp, str);
+        		questions.add(pp);
+        		i = idx;
+        		ctr++;
+        		find = ctr + ".";
         	}
         }
         System.out.println(questions);
