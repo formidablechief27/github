@@ -606,7 +606,7 @@ public class ResumeController {
 	    	}
 	    	catch(Exception e) {}
 	    }
-	    String prompt = "Based on " + fans + "; List out Users 3 Strengths and 3 Weaknesses (Max 3 words per Strength and Weakness and mention real topics or subjects, not phrases)";
+	    String prompt = "Based on " + fans + "; List out Users 3 Strengths and 3 Weaknesses (Max 3 words per Strength and Weakness and mention real topics or subjects, not phrases; please answer on the basis of hr interview, not a technical interview)";
 	    String payload = buildPayload(prompt);
 	    String response = sendApiRequest(payload);
 	    System.out.println("bhaa");
