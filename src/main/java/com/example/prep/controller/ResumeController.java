@@ -73,9 +73,9 @@ public class ResumeController {
             	id1 = id2 + 1;
             	id2 = str.indexOf("$", id1);
             	String s3 = str.substring(id1, id2);
-            	strengths.add(s1);
-            	strengths.add(s2);
-            	strengths.add(s3);
+            	strengths.add(fix(s1));
+            	strengths.add(fix(s2));
+            	strengths.add(fix(s3));
             	String wk = ii.getWeaknesses();
             	ArrayList<String> weaknesses = new ArrayList<>();
             	id1 = 0;
@@ -87,9 +87,9 @@ public class ResumeController {
             	id1 = id2 + 1;
             	id2 = wk.indexOf("$", id1);
             	String s6 = wk.substring(id1, id2);
-            	weaknesses.add(s4);
-            	weaknesses.add(s5);
-            	weaknesses.add(s6);
+            	weaknesses.add(fix(s4));
+            	weaknesses.add(fix(s5));
+            	weaknesses.add(fix(s6));
             	String scr = ii.getScore();
             	int cnt[] = new int[7];
             	int scores[] = new int[7];
@@ -390,14 +390,14 @@ public class ResumeController {
 	    List<String> go = karo(response);
 	    String str = "", wk = "";
 	    List<String> f = new ArrayList<>();
-	    f.add(go.get(0));
-	    f.add(go.get(1));
-	    f.add(go.get(2));
+	    f.add(fix(go.get(0)));
+	    f.add(fix(go.get(1)));
+	    f.add(fix(go.get(2)));
 	    str = f.get(0) + "$" + f.get(1) + "$" + f.get(2) + "$";
 	    List<String> s = new ArrayList<>();
-	    s.add(go.get(3));
-	    s.add(go.get(4));
-	    s.add(go.get(5));
+	    s.add(fix(go.get(3)));
+	    s.add(fix(go.get(4)));
+	    s.add(fix(go.get(5)));
 	    wk = s.get(0) + "$" + s.get(1) + "$" + s.get(2) + "$"; 
 	    for(int t=1;t<=7;t++) if(cnt[t] > 0) scores[t] /= cnt[t];
 	    String scr = "";
@@ -502,14 +502,14 @@ public class ResumeController {
 	    List<String> go = karo(response);
 	    String str = "", wk = "";
 	    List<String> f = new ArrayList<>();
-	    f.add(go.get(0));
-	    f.add(go.get(1));
-	    f.add(go.get(2));
+	    f.add(fix(go.get(0)));
+	    f.add(fix(go.get(1)));
+	    f.add(fix(go.get(2)));
 	    str = f.get(0) + "$" + f.get(1) + "$" + f.get(2) + "$";
 	    List<String> s = new ArrayList<>();
-	    s.add(go.get(3));
-	    s.add(go.get(4));
-	    s.add(go.get(5));
+	    s.add(fix(go.get(3)));
+	    s.add(fix(go.get(4)));
+	    s.add(fix(go.get(5)));
 	    wk = s.get(0) + "$" + s.get(1) + "$" + s.get(2) + "$"; 
 	    for(int t=1;t<=7;t++) if(cnt[t] > 0) scores[t] /= cnt[t];
 	    String scr = "";
@@ -614,14 +614,14 @@ public class ResumeController {
 	    List<String> go = karo(response);
 	    String str = "", wk = "";
 	    List<String> f = new ArrayList<>();
-	    f.add(go.get(0));
-	    f.add(go.get(1));
-	    f.add(go.get(2));
+	    f.add(fix(go.get(0)));
+	    f.add(fix(go.get(1)));
+	    f.add(fix(go.get(2)));
 	    str = f.get(0) + "$" + f.get(1) + "$" + f.get(2) + "$";
 	    List<String> s = new ArrayList<>();
-	    s.add(go.get(3));
-	    s.add(go.get(4));
-	    s.add(go.get(5));
+	    s.add(fix(go.get(3)));
+	    s.add(fix(go.get(4)));
+	    s.add(fix(go.get(5)));
 	    wk = s.get(0) + "$" + s.get(1) + "$" + s.get(2) + "$"; 
 	    for(int t=1;t<=7;t++) if(cnt[t] > 0) scores[t] /= cnt[t];
 	    String scr = "";
@@ -681,6 +681,12 @@ public class ResumeController {
 	    map.put("data", datamap);
 
 	    return ResponseEntity.ok(map);
+	}
+	
+	public String fix(String data) {
+		data = data.replaceAll("\\n+$", "");
+		data = data.replaceAll("\\", "");
+		return data;
 	}
 	 
 	private String extractTextFromPDF(InputStream inputStream) {
