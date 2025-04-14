@@ -205,6 +205,8 @@ public class ResumeController {
 	public ResponseEntity<?> custom(@RequestBody Map<String, Object> requestBody) {
 		try {
 			List<String> topics = (List<String>) requestBody.get("topics");
+			DataCache.topics.clear();
+			for(String ele : topics) DataCache.topics.add(ele);
 			String ftopics = "";
 			for(String s : topics) ftopics += topics + ",";
 			String difficulty = (String) requestBody.get("difficulty");
@@ -418,6 +420,116 @@ public class ResumeController {
 	    datamap.put("weaknesses", s);
 	    datamap.put("analysis", arr);
 	    map.put("data", datamap);
+	    DataCache.ans.clear();
+	    return ResponseEntity.ok(map);
+	}
+	
+	@PostMapping("/evaluate-custom-interview")
+	public ResponseEntity<?> gogo(@RequestParam("interview-id") String iid) {
+		LinkedHashMap<String, Object> map = new LinkedHashMap<>();
+	    LinkedHashMap<String, Object> datamap = new LinkedHashMap<>();
+	    map.put("status", "OK");
+	    HashMap<String, String> ans = DataCache.ans;
+	    int scores[] = new int[8];
+	    int cnt[] = new int[8];
+	    ans.put("What is the difference between an interface and an abstract class in Java?", 
+	    	    "An interface defines a contract with method signatures only, while an abstract class can have method implementations and state. Java classes can implement multiple interfaces but only extend one class.");
+    	ans.put("What is the Java Virtual Machine (JVM), and how does it work?", 
+    	    "The JVM is an engine that runs Java bytecode. It enables Java’s platform independence by translating bytecode into machine code specific to the host system.");
+    	ans.put("What is the significance of the 'final' keyword in Java?", 
+    	    "'final' can be used with variables (to make them constants), methods (to prevent overriding), and classes (to prevent inheritance).");
+    	ans.put("What is the difference between deep copy and shallow copy in C++?", 
+    		    "A shallow copy copies object references, while a deep copy duplicates all referenced data, ensuring separate memory allocations.");
+		ans.put("What is the rule of three/five in C++?", 
+		    "The rule suggests that if a class needs a user-defined destructor, copy constructor, or copy assignment operator, it likely needs all three (or five with move semantics).");
+		ans.put("How does C++ handle multiple inheritance, and what is the diamond problem?", 
+		    "C++ allows multiple inheritance, which can lead to the diamond problem where a shared base class is inherited more than once. Virtual inheritance is used to solve this.");
+	    ArrayList<String> topic_who = new ArrayList<>();
+	    String frame = "";
+	    for(String ele : DataCache.topics) topic_who.add(ele);
+	    int ctr = 1;
+	    frame = "(";
+	    for(String ele : topic_who) {
+	    	String pp = ctr + ". ";
+	    	pp += ele + ", ";
+	    	frame += pp;
+	    	ctr++;
+	    }
+	    frame += ")";
+	    String fans = "";
+	    ArrayList<LinkedHashMap<String, Object>> arr = new ArrayList<>();
+	    String ffans = "";
+	    for(Map.Entry<String, String> entry : ans.entrySet()) {
+	    	try {
+	    		String ques = entry.getKey();
+		    	String anss = entry.getValue();
+		    	fans += anss + "\n";
+		    	String prompt = "Evaluate the following interview question and answer. " +
+		    	        "Question: \"" + ques + "\" " +
+		    	        "Answer: \"" + anss + "\". " +
+		    	        "Please assign a score out of 10 for the answer, determine which (exactly 1) topic from the following list, and also give a short improvement " +
+		    	        frame + " best describes this Q&A. Give the answer in format Score : ?, Topic : ?, Improvement : ?";
+		    	   
+	    	    String payload = buildPayload(prompt);
+	    	    String response = sendApiRequest(payload);
+	    	    System.out.println(response);
+	    	    int id1 = response.indexOf("Score") + 7;
+	    	    int id2 = response.indexOf(",", id1);
+	    	    int score = Integer.parseInt(response.substring(id1, id2).trim());
+	    	    id1 = response.indexOf("Topic") + 7;
+	    	    id2 = response.indexOf(".", id1);
+	    	    int topic = Integer.parseInt(response.substring(id1, id2).trim());
+	    	    scores[topic] += score;
+	    	    cnt[topic] ++;
+	    	    id1 = response.indexOf("Improvement") + 14;
+	    	    id2 = response.indexOf("}", id1);
+	    	    String improve = response.substring(id1, id2).trim();
+	    	    LinkedHashMap<String, Object> current = new LinkedHashMap<>();
+	    	    current.put("question", ques);
+	    	    current.put("topic", topic_who.get(topic - 1));
+	    	    current.put("score", score);
+	    	    current.put("improvement", improve);
+	    	    ffans += ques + "$" + topic + "$" + score + "$" + improve + "$";
+	    	    arr.add(current);
+	    	}
+	    	catch(Exception e) {}
+	    }
+	    String prompt = "Based on " + fans + "; List out Users 3 Strengths and 3 Weaknesses (Max 3 words per Strength and Weakness and mention real topics or subjects, not phrases)";
+	    String payload = buildPayload(prompt);
+	    String response = sendApiRequest(payload);
+	    System.out.println("bhaa");
+	    System.out.println(response);
+	    List<String> go = karo(response);
+	    String str = "", wk = "";
+	    List<String> f = new ArrayList<>();
+	    f.add(go.get(0));
+	    f.add(go.get(1));
+	    f.add(go.get(2));
+	    str = f.get(0) + "$" + f.get(1) + "$" + f.get(2) + "$";
+	    List<String> s = new ArrayList<>();
+	    s.add(go.get(3));
+	    s.add(go.get(4));
+	    s.add(go.get(5));
+	    wk = s.get(0) + "$" + s.get(1) + "$" + s.get(2) + "$"; 
+	    for(int t=1;t<=7;t++) if(cnt[t] > 0) scores[t] /= cnt[t];
+	    String scr = "";
+	    LinkedHashMap<String, Integer> dd = new LinkedHashMap<>();
+	    for(int i=0;i<6;i++) {
+	    	if(cnt[i + 1] > 0) dd.put(topic_who.get(i), scores[i + 1]);
+	    }
+	    for(int j=1;j<=6;j++) scr += scores[j] + "$" + cnt[j] + "$";
+	    Interview ii = i.getById(Integer.parseInt(iid));
+	    ii.setAnalysis(ffans);
+	    ii.setScore(scr);
+	    ii.setStrengths(str);
+	    ii.setWeaknesses(wk);
+	    i.save(ii);
+	    datamap.put("scores", dd);
+	    datamap.put("strengths", f);
+	    datamap.put("weaknesses", s);
+	    datamap.put("analysis", arr);
+	    map.put("data", datamap);
+	    DataCache.ans.clear();
 	    return ResponseEntity.ok(map);
 	}
 	
