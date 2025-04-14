@@ -533,6 +533,118 @@ public class ResumeController {
 	    return ResponseEntity.ok(map);
 	}
 	
+	@PostMapping("/evaluate-hr-interview")
+	public ResponseEntity<?> gogogo(@RequestParam("interview-id") String iid) {
+		LinkedHashMap<String, Object> map = new LinkedHashMap<>();
+	    LinkedHashMap<String, Object> datamap = new LinkedHashMap<>();
+	    map.put("status", "OK");
+	    HashMap<String, String> ans = DataCache.ans;
+	    int scores[] = new int[8];
+	    int cnt[] = new int[8];
+	    ArrayList<String> topic_who = new ArrayList<>();
+	    String frame = "";
+	    topic_who.add("Company Knowledge");
+	    topic_who.add("Behavoiural Knowledge");
+	    topic_who.add("Situational Knowledge");
+	    ans.put("What do you know about Oracle as a company?", 
+	    	    "Oracle is a global technology company known for its database software, cloud infrastructure, and enterprise solutions. It is a leader in relational databases and also provides software like ERP, HCM, and CRM.");
+    	ans.put("Why do you want to work at Oracle?", 
+    	    "Oracle offers the opportunity to work on cutting-edge technologies in cloud computing, enterprise software, and database systems. I’m particularly drawn to the culture of innovation and the scale at which Oracle impacts global businesses.");
+    	ans.put("Tell me about a time you had to work with a difficult team member.", 
+    		    "In a group project, one member missed deadlines frequently. I initiated a one-on-one conversation, found they were struggling with a concept, and offered help. We worked together, and their performance improved.");
+    	ans.put("Describe a situation where you made a mistake. How did you handle it?", 
+    		    "Once, I misread a requirement and implemented a feature incorrectly. I admitted the mistake, informed my team early, and quickly fixed it. The experience taught me to double-check and clarify requirements.");
+    	ans.put("If you were assigned a project with unfamiliar technologies and a tight deadline, how would you handle it?", 
+    		    "I would start by breaking the project into smaller modules, prioritizing the learning curve, and using online resources or team support to quickly get up to speed. Time management and proactive communication would be key.");
+    	ans.put("What would you do if two team members strongly disagreed on a technical approach?", 
+    		    "I would mediate a discussion to understand both viewpoints, encourage data-driven arguments, and aim for a consensus. If needed, I’d involve a senior for guidance or suggest a quick prototype to compare outcomes.");
+
+	    int ctr = 1;
+	    frame = "(";
+	    for(String ele : topic_who) {
+	    	String pp = ctr + ". ";
+	    	pp += ele + ", ";
+	    	frame += pp;
+	    	ctr++;
+	    }
+	    frame += ")";
+	    String fans = "";
+	    ArrayList<LinkedHashMap<String, Object>> arr = new ArrayList<>();
+	    String ffans = "";
+	    for(Map.Entry<String, String> entry : ans.entrySet()) {
+	    	try {
+	    		String ques = entry.getKey();
+		    	String anss = entry.getValue();
+		    	fans += anss + "\n";
+		    	String prompt = "Evaluate the following interview question and answer. " +
+		    	        "Question: \"" + ques + "\" " +
+		    	        "Answer: \"" + anss + "\". " +
+		    	        "Please assign a score out of 10 for the answer, determine which (exactly 1) topic from the following list, and also give a short improvement " +
+		    	        frame + " best describes this Q&A. Give the answer in format Score : ?, Topic : ?, Improvement : ?";
+		    	   
+	    	    String payload = buildPayload(prompt);
+	    	    String response = sendApiRequest(payload);
+	    	    System.out.println(response);
+	    	    int id1 = response.indexOf("Score") + 7;
+	    	    int id2 = response.indexOf(",", id1);
+	    	    int score = Integer.parseInt(response.substring(id1, id2).trim());
+	    	    id1 = response.indexOf("Topic") + 7;
+	    	    id2 = response.indexOf(".", id1);
+	    	    int topic = Integer.parseInt(response.substring(id1, id2).trim());
+	    	    scores[topic] += score;
+	    	    cnt[topic] ++;
+	    	    id1 = response.indexOf("Improvement") + 14;
+	    	    id2 = response.indexOf("}", id1);
+	    	    String improve = response.substring(id1, id2).trim();
+	    	    LinkedHashMap<String, Object> current = new LinkedHashMap<>();
+	    	    current.put("question", ques);
+	    	    current.put("topic", topic_who.get(topic - 1));
+	    	    current.put("score", score);
+	    	    current.put("improvement", improve);
+	    	    ffans += ques + "$" + topic + "$" + score + "$" + improve + "$";
+	    	    arr.add(current);
+	    	}
+	    	catch(Exception e) {}
+	    }
+	    String prompt = "Based on " + fans + "; List out Users 3 Strengths and 3 Weaknesses (Max 3 words per Strength and Weakness and mention real topics or subjects, not phrases)";
+	    String payload = buildPayload(prompt);
+	    String response = sendApiRequest(payload);
+	    System.out.println("bhaa");
+	    System.out.println(response);
+	    List<String> go = karo(response);
+	    String str = "", wk = "";
+	    List<String> f = new ArrayList<>();
+	    f.add(go.get(0));
+	    f.add(go.get(1));
+	    f.add(go.get(2));
+	    str = f.get(0) + "$" + f.get(1) + "$" + f.get(2) + "$";
+	    List<String> s = new ArrayList<>();
+	    s.add(go.get(3));
+	    s.add(go.get(4));
+	    s.add(go.get(5));
+	    wk = s.get(0) + "$" + s.get(1) + "$" + s.get(2) + "$"; 
+	    for(int t=1;t<=7;t++) if(cnt[t] > 0) scores[t] /= cnt[t];
+	    String scr = "";
+	    LinkedHashMap<String, Integer> dd = new LinkedHashMap<>();
+	    for(int i=0;i<6;i++) {
+	    	if(cnt[i + 1] > 0) dd.put(topic_who.get(i), scores[i + 1]);
+	    }
+	    for(int j=1;j<=6;j++) scr += scores[j] + "$" + cnt[j] + "$";
+	    Interview ii = i.getById(Integer.parseInt(iid));
+	    ii.setAnalysis(ffans);
+	    ii.setScore(scr);
+	    ii.setStrengths(str);
+	    ii.setWeaknesses(wk);
+	    i.save(ii);
+	    datamap.put("scores", dd);
+	    datamap.put("strengths", f);
+	    datamap.put("weaknesses", s);
+	    datamap.put("analysis", arr);
+	    map.put("data", datamap);
+	    DataCache.ans.clear();
+	    return ResponseEntity.ok(map);
+	}
+	
 	@PostMapping("/follow-up-question")
 	public ResponseEntity<?> pp1(
 	        @RequestParam("followup-id") String fid,
