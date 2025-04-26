@@ -8,6 +8,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -191,6 +192,7 @@ public class ResumeController {
             LinkedHashMap<String, Object> datamap = new LinkedHashMap<>();
             map.put("status", "OK");
             datamap.put("interview-id", id);
+            Collections.shuffle(questions);;
             datamap.put("questions", questions);
             map.put("data", datamap);
             return ResponseEntity.ok(map);
@@ -223,6 +225,7 @@ public class ResumeController {
             LinkedHashMap<String, Object> datamap = new LinkedHashMap<>();
             map.put("status", "OK");
             datamap.put("interview-id", id);
+            Collections.shuffle(questions);
             datamap.put("questions", questions);
             map.put("data", datamap);
             return ResponseEntity.ok(map);
@@ -260,6 +263,7 @@ public class ResumeController {
             LinkedHashMap<String, Object> datamap = new LinkedHashMap<>();
             map.put("status", "OK");
             datamap.put("interview-id", id);
+            Collections.shuffle(questions);
             datamap.put("questions", questions);
             map.put("data", datamap);
             return ResponseEntity.ok(map);

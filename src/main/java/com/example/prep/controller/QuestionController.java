@@ -129,14 +129,14 @@ public class QuestionController {
 	    ObjectMapper objectMapper = new ObjectMapper();
 	    ArrayList<String> list = new ArrayList<>();
 	    list.add("Brute Force");
+	    list.add("Priority Queues");
+	    list.add("Maps and Sets");
+	    list.add("Binary Search");
+	    list.add("Trees");
 	    list.add("Greedy");
 	    list.add("Math");
 	    list.add("Strings");
-	    list.add("Binary Search");
-	    list.add("Priority Queues");
 	    list.add("Dynamic Programming");
-	    list.add("Maps and Sets");
-	    list.add("Trees");
 	    list.add("Graphs");
 	    responseMap.put("status", "OK");
 	    responseMap.put("data", list);
