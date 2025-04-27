@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -123,11 +124,29 @@ public class OAController {
 	    		responseMap.put("english", mcq(map, mm));
 	    	}
 		idd = 0;
-	    	ArrayList<Object> ll = new ArrayList<>();
-	    	for(int i=0;i<opt.get().getDsa();i++) {
-	    		idd++;
-	    		ll.add(dsa(repo.findById(idd).get().getId()));
-	    	}
+		ArrayList<Object> ll = new ArrayList<>();
+		if(id == 1) {
+			ll.add(dsa(repo.findById(4).get().getId()));
+			ll.add(dsa(repo.findById(1).get().getId()));
+		}
+		else if(id == 2) {
+			ll.add(dsa(repo.findById(5).get().getId()));
+			ll.add(dsa(repo.findById(3).get().getId()));
+		}
+		else if(id == 3) {
+			ll.add(dsa(repo.findById(6).get().getId()));
+			ll.add(dsa(repo.findById(7).get().getId()));
+		}
+		else {
+			Random rand = new Random();
+			int p1 = rand.nextInt(7) + 1;
+			int p2 = 0;
+			while(p2 == 0 || p2 == p1) p2 = rand.nextInt(7) + 1;
+			
+			ll.add(dsa(repo.findById(p1).get().getId()));
+			ll.add(dsa(repo.findById(p2).get().getId()));
+		}
+	    	
 	    	responseMap.put("dsa", ll);
 	    }
 	    
