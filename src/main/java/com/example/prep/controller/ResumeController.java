@@ -260,18 +260,6 @@ public class ResumeController {
 	    topic_who.add("Devops And Deployment");
 	    topic_who.add("Problem Solvings");
 	    topic_who.add("Project Design");
-	    DataCache.ans.clear();
-	    DataCache.ans.put("can you describe your experience with identifying and resolving bugs within projects and how you ensure seamless functionality and optimal performance.", "To ensure a seamless process, establish clear workflows, automate repetitive tasks, maintain thorough documentation, and communicate effectively across teams.");
-	    DataCache.ans.put("What specific tools or strategies would you recommend for automating repetitive tasks and maintaining thorough documentation to support these clear workflows and effective team communication?", "I would suggest tools like Jenkins, GitHub Actions, Zapier, Ansible, and Selenium depending on whether you're automating builds, deployments, workflows, or testing.");
-	    DataCache.ans.put("What are some key considerations or factors that I should take into account when choosing between these automation tools such as Jenkins, Github actions, Zapier and Selenium for a specific project or task?s", "CI/CD → Jenkins, GitHub Actions"
-	    		+ ";Workflow automation → Zapier"
-	    		+ ";Server configuration → Ansible"
-	    		+ ";Testing automation → Selenium");
-	    DataCache.ans.put("How do you approach enhancing user interface design to create an aesthetically pleasing and visually appealing user experience?", "Focus on simplicity, consistency, intuitive navigation, and visually balanced layouts with a user-first mindset.");
-	    DataCache.ans.put("How can a designer effectively balance the need for simplicity and consistency in a user interface with the desire to incorporate unique and creative visual elements that enhance the user experience?", "Prioritize core functionality first, then introduce innovative elements that enhance — not complicate — the user experience.");
-	    DataCache.ans.put("What inspired you to develop user friendly website using HTML, CSS, JavaScript and Bootstrap and what were some challenges you faced?", "Inspiration comes from creativity and real-world needs, while challenges include responsive design, cross-browser compatibility, and maintaining clean, structured code.");
-	    DataCache.ans.put("How do developers typically balance the need for creative and innovative design with the technical challenge of ensuring cross border compatibility and maintaining clean, structured code?", "Use standardized HTML/CSS, test across major browsers regularly, and apply fallbacks or polyfills for unsupported features.");
-	    DataCache.ans.put("How do you determine which specific fallbacks or polyfills to implement for unsupported features in different browsers and are there any tools or resources that you rely on to help with these processes?", "Use CanIUse or Modernizr to detect unsupported features and pick fallbacks or polyfills based on target browser support.");
 	    String fans = "";
 	    ArrayList<LinkedHashMap<String, Object>> arr = new ArrayList<>();
 	    String ffans = "";
