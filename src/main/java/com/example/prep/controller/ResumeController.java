@@ -42,15 +42,6 @@ public class ResumeController {
 		this.i = i;
 	}
 	
-	/*
-	 * 	topic.add("Software Development and Frameworks");
-	    topic.add("Databases And Optimization");
-	    topic.add("Devops And Deployment");
-	    topic.add("Problem Solvings");
-	    topic.add("Project Design");
-	    topic.add("Troubleshooting");
-	 */
-	
 	String t[] = {"Software Development and Frameworks", "Databases And Optimization", "Devops And Deployment", "Problem Solvings", "Project Design", "Troubleshooting"};
 	
 	@PostMapping("/interview-stats")
@@ -156,27 +147,6 @@ public class ResumeController {
         }
 	}
 	
-	@PostMapping("/evaluate-oa")
-	public ResponseEntity<?> evaluate(@RequestBody Map<String, Object> requestBody) {
-		try {
-			List<Integer> aptitude = (List<Integer>) requestBody.get("aptitude");
-			List<Integer> technical = (List<Integer>) requestBody.get("technical");
-			List<Integer> english = (List<Integer>) requestBody.get("english");
-			List<Integer> core = (List<Integer>) requestBody.get("core");
-			int score = 0;
-			
-            LinkedHashMap<String, Object> map = new LinkedHashMap<>();
-            LinkedHashMap<String, Object> datamap = new LinkedHashMap<>();
-            map.put("status", "OK");
-            map.put("data", datamap);
-            return ResponseEntity.ok(map);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                 .body("An error occurred: " + e.getMessage());
-        }
-	}
-	
 	@PostMapping("/hr-questions")
 	public ResponseEntity<?> hr(@RequestParam("company") String company) {
 		try {
@@ -258,9 +228,11 @@ public class ResumeController {
             int id = ii.getId();
             String apiResponse = sendApiRequest(payload);
             System.out.println(apiResponse);
+            DataCache.ques.clear();
             List<LinkedHashMap<String, Object>> questions = parseQuestions(apiResponse);
             LinkedHashMap<String, Object> map = new LinkedHashMap<>();
             LinkedHashMap<String, Object> datamap = new LinkedHashMap<>();
+            System.out.println(DataCache.ques);
             map.put("status", "OK");
             datamap.put("interview-id", id);
             Collections.shuffle(questions);
@@ -282,63 +254,6 @@ public class ResumeController {
 	    HashMap<String, String> ans = DataCache.ans;
 	    int scores[] = new int[8];
 	    int cnt[] = new int[8];
-	    	// 1. Software Development and Frameworks
-	    	ans.put("What are microservices, and how do they differ from monolithic architecture?", 
-	    	    "Microservices are a software development approach where applications are built as a collection of small, independent services that communicate via APIs. Unlike monolithic architectures, microservices allow scalability, independent deployment, and better fault isolation.");
-	    	ans.put("What is dependency injection, and why is it used?", 
-	    	    "Dependency Injection (DI) is a design pattern that allows objects to receive their dependencies from an external source rather than creating them internally. It improves modularity, testability, and makes code easier to maintain.");
-	    	ans.put("Explain the difference between synchronous and asynchronous programming.", 
-	    	    "Synchronous programming executes tasks sequentially, blocking execution until a task is completed. Asynchronous programming allows tasks to run concurrently, using callbacks, promises, or async/await to improve performance.");
-//	    	ans.put("What are the key differences between REST and GraphQL?", 
-//	    	    "REST is a standard architectural style using predefined endpoints and HTTP methods, whereas GraphQL is a query language that allows clients to specify the exact data they need, reducing over-fetching and under-fetching issues.");
-
-	    	// 2. Databases and Optimization
-	    	ans.put("What is database normalization, and why is it important?", 
-	    	    "Normalization is the process of organizing database tables to minimize redundancy and improve data integrity. It helps reduce data anomalies and ensures efficient storage.");
-	    	ans.put("Explain the differences between SQL and NoSQL databases.", 
-	    	    "SQL databases are relational, use structured tables, and support ACID transactions. NoSQL databases are non-relational, store data in various formats (key-value, document, columnar, graph), and provide flexible scaling.");
-	    	ans.put("What is an index in a database, and how does it improve performance?", 
-	    	    "An index is a data structure that enhances database query speed by allowing faster lookups. However, excessive indexing can slow down insert, update, and delete operations.");
-//	    	ans.put("What is sharding in databases, and when should it be used?", 
-//	    	    "Sharding is a technique that distributes data across multiple databases or servers to improve scalability and performance. It is useful for handling large datasets and high-traffic applications.");
-
-	    	// 3. DevOps and Deployment
-	    	ans.put("What is CI/CD, and why is it important?", 
-	    	    "Continuous Integration (CI) is the practice of automatically testing and merging code changes, while Continuous Deployment (CD) automates the release process. Together, they improve software quality and deployment speed.");
-	    	ans.put("What is the difference between Docker and Kubernetes?", 
-	    	    "Docker is a containerization platform that packages applications and their dependencies. Kubernetes is a container orchestration tool that manages container deployment, scaling, and networking.");
-	    	ans.put("Explain Infrastructure as Code (IaC) and its benefits.", 
-	    	    "IaC is the practice of managing infrastructure using code instead of manual configurations. It improves consistency, automation, and version control.");
-//	    	ans.put("What is the purpose of a reverse proxy in deployment?", 
-//	    	    "A reverse proxy sits in front of web servers and directs client requests to the appropriate backend servers, improving load balancing, security, and caching.");
-
-	    	// 4. Problem Solving
-	    	ans.put("How would you detect a cycle in a linked list?", 
-	    	    "One approach is Floyd’s Cycle Detection Algorithm (Tortoise and Hare), where two pointers move at different speeds; if they meet, a cycle exists.");
-	    	ans.put("What is dynamic programming, and when should you use it?", 
-	    	    "Dynamic programming is an optimization technique that breaks problems into overlapping subproblems and stores solutions to avoid redundant computations. It is useful for problems like Fibonacci sequence, knapsack, and shortest path.");
-//	    	ans.put("Explain the time complexity of quicksort.", 
-//	    	    "Quicksort has an average and best-case time complexity of O(n log n) and a worst-case complexity of O(n²) when the pivot selection is poor.");
-
-	    	// 5. Project Design
-	    	ans.put("How do you design a URL shortener like Bitly?", 
-	    	    "A URL shortener requires a mapping between long URLs and short keys. It can use a hashing mechanism, a database for storage, and caching for quick lookups.");
-	    	ans.put("What are the key considerations when designing a scalable system?", 
-	    	    "Factors include load balancing, database scaling, caching, distributed architecture, asynchronous processing, and failover strategies.");
-//	    	ans.put("What is event-driven architecture, and where is it used?", 
-//	    	    "Event-driven architecture processes events asynchronously using message queues, making it ideal for real-time applications like payment processing and IoT systems.");
-
-	    	// 6. Troubleshooting
-	    	ans.put("How do you debug a memory leak in a Java application?", 
-	    	    "Use profiling tools like VisualVM or JProfiler to analyze heap usage. Look for objects that are not being garbage collected and check for improper resource management.");
-	    	ans.put("What steps would you take to troubleshoot a slow database query?", 
-	    	    "Analyze execution plans, check indexing, optimize queries, partition tables, and consider caching strategies.");
-
-	    	// 7. Teamwork
-//	    	ans.put("How do you handle disagreements in a team environment?", 
-//	    	    "I focus on active listening, understanding different perspectives, and finding common ground. If needed, I escalate the issue to a manager for resolution.");
-//	    	ans.put("Describe a time when you had to collaborate with a difficult team member.", 
-//	    	    "I remained patient, communicated clearly, and focused on shared goals. I also sought feedback and adjusted my approach to improve teamwork.");
 	    ArrayList<String> topic_who = new ArrayList<>();
 	    topic_who.add("Software Development and Frameworks");
 	    topic_who.add("Databases And Optimization");
@@ -389,18 +304,20 @@ public class ResumeController {
 	    String prompt = "Based on " + fans + "; List out Users 3 Strengths and 3 Weaknesses (Max 3 words per Strength and Weakness and mention real topics or subjects, not phrases)";
 	    String payload = buildPayload(prompt);
 	    String response = sendApiRequest(payload);
+	    response = response.replaceAll("\n", "");
 	    System.out.println("bhaa");
 	    System.out.println(response);
 	    List<String> go = karo(response);
 	    String str = "", wk = "";
 	    List<String> f = new ArrayList<>();
-	    f.add(fix(go.get(0)));
-	    f.add(fix(go.get(1)));
-	    f.add(fix(go.get(2)));
+	    f.add(go.get(0).substring(0, go.get(0).length() - 2));
+	    f.add(go.get(1).substring(0, go.get(1).length() - 2));
+	    f.add(go.get(2).substring(0, go.get(2).length() - 4));
+	    System.out.println(f.get(0).length());
 	    str = f.get(0) + "$" + f.get(1) + "$" + f.get(2) + "$";
 	    List<String> s = new ArrayList<>();
-	    s.add(fix(go.get(3)));
-	    s.add(fix(go.get(4)));
+	    s.add(go.get(3).substring(0, go.get(3).length() - 2));
+	    s.add(go.get(4).substring(0, go.get(4).length() - 2));
 	    s.add(fix(go.get(5)));
 	    wk = s.get(0) + "$" + s.get(1) + "$" + s.get(2) + "$"; 
 	    for(int t=1;t<=7;t++) if(cnt[t] > 0) scores[t] /= cnt[t];
@@ -436,18 +353,6 @@ public class ResumeController {
 	    HashMap<String, String> ans = DataCache.ans;
 	    int scores[] = new int[8];
 	    int cnt[] = new int[8];
-	    ans.put("What is the difference between an interface and an abstract class in Java?", 
-	    	    "An interface defines a contract with method signatures only, while an abstract class can have method implementations and state. Java classes can implement multiple interfaces but only extend one class.");
-    	ans.put("What is the Java Virtual Machine (JVM), and how does it work?", 
-    	    "The JVM is an engine that runs Java bytecode. It enables Java’s platform independence by translating bytecode into machine code specific to the host system.");
-    	ans.put("What is the significance of the 'final' keyword in Java?", 
-    	    "'final' can be used with variables (to make them constants), methods (to prevent overriding), and classes (to prevent inheritance).");
-    	ans.put("What is the difference between deep copy and shallow copy in C++?", 
-    		    "A shallow copy copies object references, while a deep copy duplicates all referenced data, ensuring separate memory allocations.");
-		ans.put("What is the rule of three/five in C++?", 
-		    "The rule suggests that if a class needs a user-defined destructor, copy constructor, or copy assignment operator, it likely needs all three (or five with move semantics).");
-		ans.put("How does C++ handle multiple inheritance, and what is the diamond problem?", 
-		    "C++ allows multiple inheritance, which can lead to the diamond problem where a shared base class is inherited more than once. Virtual inheritance is used to solve this.");
 	    ArrayList<String> topic_who = new ArrayList<>();
 	    String frame = "";
 	    for(String ele : DataCache.topics) topic_who.add(ele);
@@ -550,19 +455,6 @@ public class ResumeController {
 	    topic_who.add("Company Knowledge");
 	    topic_who.add("Behavoiural Knowledge");
 	    topic_who.add("Situational Knowledge");
-	    ans.put("What do you know about Oracle as a company?", 
-	    	    "Oracle is a global technology company known for its database software, cloud infrastructure, and enterprise solutions. It is a leader in relational databases and also provides software like ERP, HCM, and CRM.");
-    	ans.put("Why do you want to work at Oracle?", 
-    	    "Oracle offers the opportunity to work on cutting-edge technologies in cloud computing, enterprise software, and database systems. I’m particularly drawn to the culture of innovation and the scale at which Oracle impacts global businesses.");
-    	ans.put("Tell me about a time you had to work with a difficult team member.", 
-    		    "In a group project, one member missed deadlines frequently. I initiated a one-on-one conversation, found they were struggling with a concept, and offered help. We worked together, and their performance improved.");
-    	ans.put("Describe a situation where you made a mistake. How did you handle it?", 
-    		    "Once, I misread a requirement and implemented a feature incorrectly. I admitted the mistake, informed my team early, and quickly fixed it. The experience taught me to double-check and clarify requirements.");
-    	ans.put("If you were assigned a project with unfamiliar technologies and a tight deadline, how would you handle it?", 
-    		    "I would start by breaking the project into smaller modules, prioritizing the learning curve, and using online resources or team support to quickly get up to speed. Time management and proactive communication would be key.");
-    	ans.put("What would you do if two team members strongly disagreed on a technical approach?", 
-    		    "I would mediate a discussion to understand both viewpoints, encourage data-driven arguments, and aim for a consensus. If needed, I’d involve a senior for guidance or suggest a quick prototype to compare outcomes.");
-
 	    int ctr = 1;
 	    frame = "(";
 	    for(String ele : topic_who) {
@@ -657,8 +549,8 @@ public class ResumeController {
 		int p1 = Integer.parseInt(fid);
 		int p2 = Integer.parseInt(qid);
 		ArrayList<Integer> ques = new ArrayList<>();
-		ques.add(p1);
 		ques.add(p2);
+		ques.add(p1);
 		String which_question = DataCache.ques.get(ques);
 		DataCache.ans.put(which_question, ans);
 		String prompt = "Based on the following answer, generate a follow-up question:\nAnswer: " + ans;
@@ -689,7 +581,6 @@ public class ResumeController {
 	
 	public String fix(String data) {
 		data = data.replaceAll("\\n+$", "");
-		data = data.replaceAll("\\", "");
 		return data;
 	}
 	 
@@ -701,7 +592,7 @@ public class ResumeController {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return "";
+        return "";	
     }
     
     private static String buildPayload(String prompt) {
@@ -778,6 +669,10 @@ public class ResumeController {
         			if(apiResponse.charAt(idx) >= 48 && apiResponse.charAt(idx) <= 57) break;
         			if(apiResponse.charAt(idx) == '\"') break;
         			if(idx == apiResponse.indexOf("Weaknesses:")) break;
+        			if(apiResponse.charAt(idx) == '\n' || apiResponse.charAt(idx) == '\r') {
+        				idx++;
+        		        break;
+        		    }
         			str += apiResponse.charAt(idx);
         			idx++;
         		}
@@ -823,7 +718,7 @@ public class ResumeController {
         		pp.put("question-id", num);
         		pp.put("description", str);
         		ArrayList<Integer> ppp = new ArrayList<>();
-        		ppp.add(itr);
+        		ppp.add(ctr);
         		ppp.add(0);
         		DataCache.ques.put(ppp, str);
         		questions.add(pp);
@@ -869,6 +764,7 @@ public class ResumeController {
         		DataCache.ques.put(ppp, str);
         		questions.add(pp);
         		i = idx;
+        		itr++;
         		if(find.equals("1.")) find = "2.";
         		else if(find.equals("2.")) find = "3.";
         		else if(find.equals("3.")) find = "4.";
